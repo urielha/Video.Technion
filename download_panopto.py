@@ -53,18 +53,12 @@ def main(arguments):
 		content = opener.read().decode()
 
 	files = re.findall("<item>\s+<title>([^<]*)</title>.*?<guid>([^<]*)</guid>", content, re.DOTALL)
-	i = 1
-	downloaded = 0
-	for f in files:
-		if downloadTill >= 0 and downloaded >= downloadTill:
-			return
-
+	downloadTill = downloadTill if (downloadTill >= 0) else len(files)
+	
+	for f in files[ignoreTill : ignoreTill + downloadTill]:
 		dest = os.path.join(outputDir, u"%s%s.mp4" % (prefix, f[0]))
-		if i > ignoreTill and not os.path.isfile(dest):
+		if not os.path.isfile(dest):
 			download(f[1], dest)
-			downloaded += 1
-		i += 1
-
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Download videos one by one from panopto.', epilog='Written by uriel, hope you enjoy it.')
