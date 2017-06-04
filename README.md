@@ -1,5 +1,9 @@
 # Video.Technion
-Download videos from Technion servers like a boss
+Download videos from Technion Panopto like a boss
+
+You can find an executable version at [Video.Technion/releases](https://github.com/urielha/Video.Technion/releases).
+
+Use [OVSDownloader](https://github.com/Krumpet/OVSDownloader) to download from the **old** server.
 
 ## download_panopto
 
