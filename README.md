@@ -11,6 +11,8 @@ Use [OVSDownloader](https://github.com/Krumpet/OVSDownloader) to download from t
 
 Just open the download_panopto and follow instructions.
 
+Pay attention to run the script with **Python 3.*** (or use the executable).
+
 If you are using the executable make sure to extract all files from the **download_panopto.zip** 
 
 ## Usage with arguments
