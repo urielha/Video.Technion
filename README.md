@@ -7,23 +7,31 @@ Use [OVSDownloader](https://github.com/Krumpet/OVSDownloader) to download from t
 
 ## download_panopto
 
-usage: download_panopto.py \[-h\] rssURL \[prefix\] \[-i num\] \[-d num\] \[-o output_dir\]
+### Simple Usage
+
+Just open the download_panopto and follow instructions.
+
+If you are using the executable make sure to extract all files from the download_panopto.zip 
+
+### Usage with arguments
+
+usage: download_panopto.py \[-h\] \[-p PREFIX\] \[-s NUM\] \[-e NUM\] \[-o OUTPUT_DIR\] \[courseUrl\]
 
 Download videos one by one from panopto.
 
-### positional arguments:
+#### positional arguments:
 
 | Argument | Description |
 | -------- | ----------- |
-|  rssURL  | the RSS url of the Course in the Panopto |
-|  prefix  (optional) | prefix of the filename |
+|  courseUrl  | the url of the Course in the Panopto (should contain "folderID") |
 
-### optional arguments:
+#### optional arguments:
 | Argument | Description |
 | -------- | ----------- |
 | -h, --help | show this help message and exit |
-|  -i, --ignore *num* | ignore x videos from the start (will automaticly ignore files that already exist) |
-|  -d, --download *num* | download x videos and stop (default is download all) |
-|  -o, --output *output_dir* | output directory (default is current) |
+| :new: -s, --startIndex *num* | index of the first video to download (default is the very first one) |
+| :new: -e, --endIndex *num* | index of the last video (default is to download till the last one) |
+| -o, --output *output_dir* | output directory (default is current) |
+| -p, --prefix *prefix* | prefix of the filename |
 
 
