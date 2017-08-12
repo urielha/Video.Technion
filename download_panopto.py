@@ -32,7 +32,7 @@ sys.stdout = stdoutWrapper('cp1255', 'strict')
 def download(url, toFile):
 	print(toFile)
 	print(u"downloading file: {}\n\t-> to: {}".format(url, toFile))
-	chunkSize = 1024*512  
+	chunkSize = 1024*512
 	response = urlopen(url)
 	f = open(toFile, 'wb')
 	while True:
@@ -65,7 +65,7 @@ def getNumber(txt, bounds):
 
 
 def getRSSUrl(coursePageUrl): 
-	RE_COURSE_URL = "https?://([^/]+)/Panopto.*folderID=(?:%22|\")([a-zA-Z0-9\-]{36})"
+	RE_COURSE_URL = "https?://([^/]+)/Panopto.*folderID=(?:%22|\")?([a-zA-Z0-9\-]{36})"
 
 	urlComponents = re.match(RE_COURSE_URL, coursePageUrl, re.I)
 	if not urlComponents:
@@ -82,14 +82,14 @@ def main(arguments):
 	RE_VIDEO_RSS = "<item>\s+<title>([^<]*)</title>.*?<guid>([^<]*)</guid>"
 	global WELCOME
 	print(WELCOME)
-	print(u"")
 
 	rssURL = '' if not arguments.courseUrl else getRSSUrl(arguments.courseUrl)
 	while not rssURL:
-		print(u"Please enter the link to the course (e.g. https://panoptotech.cloud.panopto.eu/Panopto/.../...folderID=**")
+		print(u"\nPlease enter the link to the course (e.g. https://panoptotech.cloud.panopto.eu/Panopto/.../...folderID=**")
 		arguments.courseUrl = input(u"> ")
 		rssURL = getRSSUrl(arguments.courseUrl)
 	
+	print("")
 	content = readWeb(rssURL)
 
 	files = re.findall(RE_VIDEO_RSS, content, re.DOTALL)
@@ -99,9 +99,8 @@ def main(arguments):
 	prefix = arguments.prefix if arguments.prefix else input("Add prefix to the file? (press enter for none)") or ""
 	outputDir = arguments.outputDir
 
-	for f in files[max(0,startIndex - 1) : min(length, stopIndex)]:
+	for f in files[startIndex - 1 : stopIndex]:
 		dest = os.path.join(outputDir, u"{}{}.mp4".format(prefix, f[0]))
-		# if not os.path.isfile(dest):
 		download(f[1], dest)
 
 WELCOME = u"Welcome to Panopto downloader!\n[Home page: https://github.com/urielha/Video.Technion]"
