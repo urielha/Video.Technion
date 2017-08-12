@@ -96,7 +96,7 @@ def main(arguments):
 	length = len(files)
 	startIndex = arguments.startIndex if arguments.startIndex > 0 else getNumber("start download from", (1,length))
 	stopIndex = arguments.endIndex if arguments.endIndex > 0 else getNumber("download till", (startIndex, length))
-	prefix = arguments.prefix if arguments.prefix else input("Add prefix to the file? (press enter for none)") or ""
+	prefix = arguments.prefix if arguments.prefix else input("Add prefix to the file? (press enter for none) ") or ""
 	outputDir = arguments.outputDir
 
 	for f in files[startIndex - 1 : stopIndex]:
