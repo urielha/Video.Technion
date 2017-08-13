@@ -7,6 +7,7 @@ import re
 import os 
 import sys
 import io 
+import ssl
 
 import argparse
 
@@ -30,10 +31,10 @@ sys.stdout = stdoutWrapper('cp1255', 'strict')
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 def download(url, toFile):
-	print(toFile)
 	print(u"downloading file: {}\n\t-> to: {}".format(url, toFile))
 	chunkSize = 1024*512
-	response = urlopen(url)
+	gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1) # don't verify certificate
+	response = urlopen(url, context=gcontext)
 	f = open(toFile, 'wb')
 	while True:
 		buff = response.read(chunkSize)
@@ -75,7 +76,7 @@ def getRSSUrl(coursePageUrl):
 		return ''
 	panoptoUrl = urlComponents.group(1)
 	courseId = urlComponents.group(2)
-	return "http://%s/Panopto/Podcast/Podcast.ashx?courseid=%s&type=mp4" % (panoptoUrl, courseId)
+	return "http://{}/Panopto/Podcast/Podcast.ashx?courseid={}&type=mp4".format(panoptoUrl, courseId)
 
 
 def main(arguments):
