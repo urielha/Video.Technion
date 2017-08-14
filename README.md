@@ -9,7 +9,7 @@ Use [OVSDownloader](https://github.com/Krumpet/OVSDownloader) to download from t
 
 Just open the download_panopto and follow instructions.
 
-Pay attention to run the script with **Python 3.*** (or use the executable).
+Pay attention to run the [excutable](https://github.com/urielha/Video.Technion/releases) or run the script with **Python3**.
 
 If you are using the executable make sure to extract all files from the **download_panopto_exe.zip** 
 
