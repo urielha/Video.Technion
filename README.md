@@ -7,16 +7,15 @@ Use [OVSDownloader](https://github.com/Krumpet/OVSDownloader) to download from t
 
 # Usage
 
-## Simple Usage
-
 Just open the download_panopto and follow instructions.
 
 Pay attention to run the script with **Python 3.*** (or use the executable).
 
-If you are using the executable make sure to extract all files from the **download_panopto.zip** 
+If you are using the executable make sure to extract all files from the **download_panopto_exe.zip** 
 
-### >Hebrew note
-If you want to change the output path (or any other parameter) to a path that contains Hebrew please specify it as command parameter (see arguments below) with quotation marks and not at the input prompt itself.
+##### Hebrew note
+
+> If you want to change the output path (or any other parameter) to a path that contains **Hebrew** please specify it as argument with quotation marks and not at the input prompt itself.
 
 ## Usage with arguments
 
