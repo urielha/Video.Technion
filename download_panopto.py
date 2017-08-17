@@ -9,6 +9,21 @@ import os
 import sys
 import io
 import ssl
+import traceback
+
+import argparse
+
+# -*- coding: utf-8 -*-
+
+# pay attention to run python 3!
+
+from urllib.request import urlopen
+from time import time
+import re
+import os
+import sys
+import io
+import ssl
 
 import argparse
 
@@ -31,15 +46,16 @@ sys.stdout = stdoutWrapper('cp1255', 'strict')
 # print(sys.stdout.encoding)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def printDownloadData(totalFileSize, downloaded, startTime):
-    PROGRESS_STR = u"\tDownloaded: {:7.2f}MB, Total: {:7.2f}MB [{:3.0f}%] [ETA: {:2.0f}:{:<2.0f}]  "
-    downloadedMB = downloaded/1024/1024
-    totalMB = totalFileSize/1024/1024
-    progress = 100 * downloaded / totalFileSize
-    remainSecs = min((time() - startTime) * totalFileSize / max(downloaded, 1), 98*60+59)
-    STR = PROGRESS_STR.format(downloadedMB, totalMB, progress, remainSecs / 60, remainSecs % 60)
-    print(STR, end='\r')
-
+def getDownloadProgress(startTime):
+    def getProgress_aux(current, total):
+        PROGRESS_STR = u"\tDownloaded: {:7.2f}MB, Total: {:7.2f}MB [{:3.0f}%] [ETA: {:02d}:{:02d}]  "
+        downloadedMB = current/1024/1024
+        totalMB = total/1024/1024
+        progress = 100 * current / total
+        remainSecs = min((time() - startTime) * total / max(current, 1), 99*60+59)
+        STR = PROGRESS_STR.format(downloadedMB, totalMB, progress, int(remainSecs / 60), int(remainSecs % 60))
+        return STR
+    return getProgress_aux
 
 def download(url, toFile):
     print(u"downloading file: {}\n\t-> to: {}".format(url, toFile))
@@ -48,10 +64,11 @@ def download(url, toFile):
     gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1) # don't verify certificate
     response = urlopen(url, context=gcontext)
 
-    totalFileSize, downloaded, startTime = response.length, 0.0, time()
+    totalFileSize, downloaded = response.length, 0.0
+    getProgressStr = getDownloadProgress(time())
     f = open(toFile, 'wb')
     while True:
-        printDownloadData(totalFileSize, downloaded, startTime)
+        print(getProgressStr(downloaded, totalFileSize), end='\r')
         buff = response.read(chunkSize)
         if not buff:
             break
@@ -144,5 +161,5 @@ if __name__ == '__main__':
     try:
         main(arguments)
     except Exception as ex:
-        print(ex)
+        traceback.print_exc()
     input('Press Enter to continue...')
