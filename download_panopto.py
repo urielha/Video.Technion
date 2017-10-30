@@ -60,7 +60,7 @@ def getDownloadProgress(startTime, total):
             return ""
 
         speed = current/1024/duration
-        remainSecs = min(duration * (total / max(current, 1)), MAX_REMAIN_SEC)
+        remainSecs = max(0, min(MAX_REMAIN_SEC, duration * (total / current - 1)))
         STR = PROGRESS_STR.format(downloadedMB, totalMB, progress, speed, int(remainSecs / 60), int(remainSecs % 60))
         return STR
     return getProgress_aux
