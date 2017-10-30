@@ -47,17 +47,17 @@ sys.stdout = stdoutWrapper('cp1255', 'strict')
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 def getDownloadProgress(startTime, total):
+    PROGRESS_STR = u"\tDownloaded: {:7.2f}MB, Total: {:7.2f}MB [{:3.0f}%], Speed: {:7.2f}KB/s [ETA: {:02d}:{:02d}] "
     MAX_REMAIN_SEC = 99*60+59
     totalMB = total/1024/1024
 
     def getProgress_aux(current):
-        PROGRESS_STR = u"\tDownloaded: {:7.2f}MB, Total: {:7.2f}MB [{:3.0f}%], Speed: {:7.2f}KB/s [ETA: {:02d}:{:02d}]  "
+        current = max(1, current)
+        duration = time() - startTime
+        duration = max(1, duration)
+
         downloadedMB = current/1024/1024
         progress = 100 * current / total
-        duration = time() - startTime
-        if duration == 0:
-            return ""
-
         speed = current/1024/duration
         remainSecs = max(0, min(MAX_REMAIN_SEC, duration * (total / current - 1)))
         STR = PROGRESS_STR.format(downloadedMB, totalMB, progress, speed, int(remainSecs / 60), int(remainSecs % 60))
