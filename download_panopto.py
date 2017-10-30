@@ -25,6 +25,7 @@ import sys
 import io
 import ssl
 
+import wget
 import argparse
 
 # ~~~~~~~~~~~~~~~~~~ encoding stuff ~~~~~~~~~~~~~~~
@@ -46,29 +47,37 @@ sys.stdout = stdoutWrapper('cp1255', 'strict')
 # print(sys.stdout.encoding)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def getDownloadProgress(startTime):
-    def getProgress_aux(current, total):
-        PROGRESS_STR = u"\tDownloaded: {:7.2f}MB, Total: {:7.2f}MB [{:3.0f}%] [ETA: {:02d}:{:02d}]  "
+def getDownloadProgress(startTime, total):
+    MAX_REMAIN_SEC = 99*60+59
+    totalMB = total/1024/1024
+
+    def getProgress_aux(current):
+        PROGRESS_STR = u"\tDownloaded: {:7.2f}MB, Total: {:7.2f}MB [{:3.0f}%], Speed: {:7.2f}KB/s [ETA: {:02d}:{:02d}]  "
         downloadedMB = current/1024/1024
-        totalMB = total/1024/1024
         progress = 100 * current / total
-        remainSecs = min((time() - startTime) * total / max(current, 1), 99*60+59)
-        STR = PROGRESS_STR.format(downloadedMB, totalMB, progress, int(remainSecs / 60), int(remainSecs % 60))
+        duration = time() - startTime
+        if duration == 0:
+            return ""
+
+        speed = current/1024/duration
+        remainSecs = min(duration * (total / max(current, 1)), MAX_REMAIN_SEC)
+        STR = PROGRESS_STR.format(downloadedMB, totalMB, progress, speed, int(remainSecs / 60), int(remainSecs % 60))
         return STR
     return getProgress_aux
 
 def download(url, toFile):
     print(u"downloading file: {}\n\t-> to: {}".format(url, toFile))
 
+    # wget.download(url, toFile)
     chunkSize = 1024*512 # Bytes
     gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1) # don't verify certificate
     response = urlopen(url, context=gcontext)
 
     totalFileSize, downloaded = response.length, 0.0
-    getProgressStr = getDownloadProgress(time())
+    getProgressStr = getDownloadProgress(time(), totalFileSize)
     f = open(toFile, 'wb')
     while True:
-        print(getProgressStr(downloaded, totalFileSize), end='\r')
+        print(getProgressStr(downloaded), end='\r')
         buff = response.read(chunkSize)
         if not buff:
             break
