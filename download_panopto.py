@@ -68,20 +68,26 @@ def download(url, toFile):
     print(u"downloading file: {}\n\t-> to: {}".format(url, toFile))
 
     chunkSize = 1024*4 # Bytes
+    printFrequency = 0.2 # Seconds
     gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1) # don't verify certificate
     response = urlopen(url, context=gcontext)
 
     totalFileSize, downloaded = response.length, 0.0
     getProgressStr = getDownloadProgress(time(), totalFileSize)
     f = open(toFile, 'wb')
+    lastPrint = 0
     while True:
-        print(getProgressStr(downloaded), end='\r')
+        if time() - lastPrint > printFrequency:
+            print(getProgressStr(downloaded), end='\r')
+            lastPrint = time()
+
         buff = response.read(chunkSize)
         if not buff:
             break
         f.write(buff)
-        downloaded += chunkSize
-    print(u"\nfinish\n")
+        downloaded += len(buff)
+    print(getProgressStr(downloaded))
+    print(u"finish\n")
     f.close()
     response.close()
 
