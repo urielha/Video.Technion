@@ -25,7 +25,7 @@ import sys
 import io
 import ssl
 
-import wget
+# import wget
 import argparse
 
 # ~~~~~~~~~~~~~~~~~~ encoding stuff ~~~~~~~~~~~~~~~
