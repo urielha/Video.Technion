@@ -25,7 +25,6 @@ import sys
 import io
 import ssl
 
-# import wget
 import argparse
 
 # ~~~~~~~~~~~~~~~~~~ encoding stuff ~~~~~~~~~~~~~~~
@@ -68,8 +67,7 @@ def getDownloadProgress(startTime, total):
 def download(url, toFile):
     print(u"downloading file: {}\n\t-> to: {}".format(url, toFile))
 
-    # wget.download(url, toFile)
-    chunkSize = 1024*128 # Bytes
+    chunkSize = 1024*4 # Bytes
     gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1) # don't verify certificate
     response = urlopen(url, context=gcontext)
 
