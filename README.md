@@ -3,7 +3,7 @@ Download videos from Technion Panopto like a boss
 
 You can find an executable version at [Video.Technion/releases](https://github.com/urielha/Video.Technion/releases).
 
-Use [OVSDownloader](https://github.com/Krumpet/OVSDownloader) to download from the **old** server.
+Use https://github.com/Krumpet/OVSDownloader to download from the **old** server.
 
 # Usage
 
@@ -31,8 +31,8 @@ usage: download_panopto.py courseUrl \[-h\] \[-p PREFIX\] \[-s NUM\] \[-e NUM\] 
 | Argument | Description |
 | -------- | ----------- |
 | -h, --help | show this help message and exit |
-| :new: -s, --startIndex *num* | index of the first video to download |
-| :new: -e, --endIndex *num* | index of the last video |
+| -s, --startIndex *num* | index of the first video to download |
+| -e, --endIndex *num* | index of the last video |
 | -o, --output *output_dir* | output directory |
 | -p, --prefix *prefix* | prefix of the filename |
 
