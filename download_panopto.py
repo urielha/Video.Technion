@@ -152,7 +152,7 @@ def main(arguments):
         dest = os.path.join(outputDir, u"{}{}.mp4".format(prefix, f[0]))
         download(f[1], dest)
 
-WELCOME = u"Welcome to Panopto downloader!\n[Home page: https://github.com/urielha/Video.Technion]"
+WELCOME = u"Welcome to Panopto downloader!\n[Home page: https://github.com/urielha/Video.Technion]\nVersion: 2.2.0"
 EPILOG = u"Written by Uriel"
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=WELCOME, epilog=EPILOG)
