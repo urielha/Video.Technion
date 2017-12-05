@@ -1,5 +1,6 @@
 import getpass
 import os
+import traceback
 from collections import namedtuple
 
 from selenium import webdriver
@@ -35,7 +36,7 @@ class Downloader(object):
             }};
         """
         self._prompt_script += """
-            var div = $("<div dir=\\"rtl\\">נא לבחור הרצאות. מ:</div>");
+            var div = $("<div dir=\\"rtl\\" style=\\"color:red;font-size:24px\\">נא לבחור הרצאות. מ:</div>");
             var select1 = $("<select id=\\"{}\\"></select>");
             fill(select1);
             div.append(select1);
@@ -45,6 +46,10 @@ class Downloader(object):
             div.append(select2);
             div.append("<a href=\\"{}\\"><button id=\\"{}\\">~ OK ~</button></a>");
             
+            div.append("<br />");
+            div.append("<hr />");
+            div.append("<br />");
+
             div.insertBefore("center > table");
         """.format(
             self._selectFromId,
@@ -81,9 +86,11 @@ class Downloader(object):
         if username and password:
             self._find_id(self._submitId).click()
 
+        self._wait_for_video_page()
+
         return self
 
-    def wait_for_video_page(self):
+    def _wait_for_video_page(self):
         Wait(self.browser, self.timeout).until(
             EC.presence_of_element_located((By.CLASS_NAME, "videolist"))
         )
@@ -114,6 +121,7 @@ class Downloader(object):
 
     def download(self):
         start, end = self._prompt_download()
+        self.browser.set_window_size(0, 0)
         for link in self.links[start:end]:
             filename = link.split("/")[-1]
             self.navigate(link)
@@ -127,7 +135,7 @@ class Downloader(object):
 def main():
     url = input("Please enter the url of the lecture: ")
     username = input("username: ")
-    password = input("pass: ")  # getpass.getpass()
+    password = getpass.getpass()
 
     # TODO: save password?
     # save = input("save password (y/n) ?") == "y"
@@ -137,13 +145,17 @@ def main():
         downloader.start() \
             .navigate(url) \
             .login(username, password) \
-            .wait_for_video_page() \
             .load_links() \
             .download()
     except TimeoutError:
         print("timeout on browser, please try again")
+    except:
+    	traceback.print_exc()
     finally:
-        downloader.end()
+        try:
+            downloader.end()
+        except:
+            pass
         input("Press Enter to quit...")
 
 
