@@ -29,21 +29,21 @@ class Downloader(object):
 
         self._prompt_script = """
             fill = function (s) {{
-                for(i = {}; i < {} + 1; i++) {{
-                    s.append("<option value=\"" + i + "\">" + i + "</option>");
+                for(i = {}; i < {}; i++) {{
+                    s.append("<option value=\\"" + i + "\\">" + (i+1) + "</option>");
                 }}
             }};
         """
         self._prompt_script += """
-            var div = $("<div dir=\"rtl\">נא לבחור הרצאות. מ:</div>");
-            var select1 = $("<select id="{}"></select>");
-            fill(select1)
-            div.append(select);
+            var div = $("<div dir=\\"rtl\\">נא לבחור הרצאות. מ:</div>");
+            var select1 = $("<select id=\\"{}\\"></select>");
+            fill(select1);
+            div.append(select1);
             div.append(" עד ");
-            var select2 = $("<select id="{}"></select>");
-            fill(select2)
+            var select2 = $("<select id=\\"{}\\"></select>");
+            fill(select2);
             div.append(select2);
-            div.append("<a href=\"{}\"><button id=\"{}\">~ OK ~</button></a>");
+            div.append("<a href=\\"{}\\"><button id=\\"{}\\">~ OK ~</button></a>");
             
             div.insertBefore("center > table");
         """.format(
@@ -95,7 +95,7 @@ class Downloader(object):
         return self
 
     def _prompt_download(self):
-        start, end = 0, len(self.links) - 1
+        start, end = 0, len(self.links)
 
         self.browser.execute_script(
             self._prompt_script.format(start, end))
@@ -104,11 +104,11 @@ class Downloader(object):
             EC.url_contains(self._doneLink)
         )
 
-        start = max(end, min(start,
-                             self._find_id(self._selectFromId).get_attribute("value")
+        start = min(end, max(start,
+                             int(self._find_id(self._selectFromId).get_attribute("value"))
                              ))
-        end = max(end, min(start,
-                           self._find_id(self._selectToId).get_attribute("value")
+        end = min(end, max(start,
+                           int(self._find_id(self._selectToId).get_attribute("value")) + 1
                            ))
         return start, end
 
@@ -144,6 +144,7 @@ def main():
         print("timeout on browser, please try again")
     finally:
         downloader.end()
+        input("Press Enter to quit...")
 
 
 if __name__ == '__main__':
