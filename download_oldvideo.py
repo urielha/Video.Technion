@@ -3,59 +3,54 @@ import os
 import traceback
 from collections import namedtuple
 
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait as Wait
+def ImportSelenium():
+    try:
+        from selenium import webdriver
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support import expected_conditions as EC
+        from selenium.webdriver.support.ui import WebDriverWait as Wait
+    except ImportError:
+        pass
+
+ImportSelenium()
+
+Selectors = namedtuple("Selectors", ["links", "video_button"])
+InputsIds = namedtuple("InputsIds", ["name", "password", "server", "submit"])
+InjectorDetails = namedtuple("InjectorDetails", ["fileName", "fromElmId", "toElmId", "doneElmId", "doneLink"])
 
 
 class Downloader(object):
+    _optionTagName = "option"
+
+    _selectors = Selectors(
+        links="table td a.iframe:not(.vidlink)",
+        video_button="a.closebox[title='Play Video']")
+    _inputsIds = InputsIds(
+        name="LogiN",
+        password="PasswD",
+        server="ServeR",
+        submit="idenT_conT")
+    _injectorDetails = InjectorDetails(
+        fileName="oldvideo_inject_script.js",
+        fromElmId="_from_vid",
+        toElmId="_to_vid",
+        doneElmId="_done_button",
+        doneLink="#done")
+
+    timeout = 100
+
     def __init__(self):
-        self.timeout = 100
-
-        sels = self._selectors = namedtuple("Selectors", ["links", "video_button"])
-        inputs = self._inputsIds = namedtuple("Inputs", ["name", "password", "server"])
-
-        sels.links = "table td a.iframe:not(.vidlink)"
-        sels.video_button = "a.closebox[title='Play Video']"
-        inputs.name = "LogiN"
-        inputs.password = "PasswD"
-        inputs.server = "ServeR"
-        self._optionTagName = "option"
-        self._submitId = "idenT_conT"
-        self._selectFromId = "_from_vid"
-        self._selectToId = "_to_vid"
-        self._doneButtonId = "_done_button"
-        self._doneLink = "#done"
-
-        self._prompt_script = """
-            fill = function (s) {{
-                for(i = {}; i < {}; i++) {{
-                    s.append("<option value=\\"" + i + "\\">" + (i+1) + "</option>");
-                }}
-            }};
-        """
-        self._prompt_script += """
-            var div = $("<div dir=\\"rtl\\" style=\\"color:red;font-size:24px\\">נא לבחור הרצאות. מ:</div>");
-            var select1 = $("<select id=\\"{}\\"></select>");
-            fill(select1);
-            div.append(select1);
-            div.append(" עד ");
-            var select2 = $("<select id=\\"{}\\"></select>");
-            fill(select2);
-            div.append(select2);
-            div.append("<a href=\\"{}\\"><button id=\\"{}\\">~ OK ~</button></a>");
-            
-            div.append("<br />");
-            div.append("<hr />");
-            div.append("<br />");
-
-            div.insertBefore("center > table");
-        """.format(
-            self._selectFromId,
-            self._selectToId,
-            self._doneLink,
-            self._doneButtonId)
+        inject_script = open(
+            self._injectorDetails.fileName).read().split("// - split code -")
+        self._prompt_script = ''.join([
+            inject_script[0],
+            inject_script[1].format(
+                self._injectorDetails.fromElmId,
+                self._injectorDetails.toElmId,
+                self._injectorDetails.doneLink,
+                self._injectorDetails.doneElmId
+            )
+        ])
 
     def start(self):
         self.browser = webdriver.Chrome()
@@ -150,7 +145,7 @@ def main():
     except TimeoutError:
         print("timeout on browser, please try again")
     except:
-    	traceback.print_exc()
+        traceback.print_exc()
     finally:
         try:
             downloader.end()
