@@ -1,5 +1,6 @@
 import getpass
 import os
+from os.path import join as joinPath
 import traceback
 from collections import namedtuple
 
@@ -16,22 +17,25 @@ ImportSelenium()
 
 Selectors = namedtuple("Selectors", ["links", "video_button"])
 InputsIds = namedtuple("InputsIds", ["name", "password", "server", "submit"])
-InjectorDetails = namedtuple("InjectorDetails", ["fileName", "fromElmId", "toElmId", "doneElmId", "doneLink"])
+InjectorDetails = namedtuple(
+    "InjectorDetails",
+    ["funcsFile", "mainFile", "fromElmId", "toElmId", "doneElmId", "doneLink"])
 
 
 class Downloader(object):
+
+    # ------------- configurations --------------------
+
     _optionTagName = "option"
 
     _selectors = Selectors(
         links="table td a.iframe:not(.vidlink)",
         video_button="a.closebox[title='Play Video']")
     _inputsIds = InputsIds(
-        name="LogiN",
-        password="PasswD",
-        server="ServeR",
-        submit="idenT_conT")
+        name="LogiN", password="PasswD", server="ServeR", submit="idenT_conT")
     _injectorDetails = InjectorDetails(
-        fileName="oldvideo_inject_script.js",
+        funcsFile=joinPath("js", "oldvideo_funcs.js"),
+        mainFile=joinPath("js", "oldvideo_main.js"),
         fromElmId="_from_vid",
         toElmId="_to_vid",
         doneElmId="_done_button",
@@ -39,18 +43,13 @@ class Downloader(object):
 
     timeout = 100
 
+    # --------------------------------------------------
+
     def __init__(self):
-        inject_script = open(
-            self._injectorDetails.fileName).read().split("// - split code -")
-        self._prompt_script = ''.join([
-            inject_script[0],
-            inject_script[1].format(
-                self._injectorDetails.fromElmId,
-                self._injectorDetails.toElmId,
-                self._injectorDetails.doneLink,
-                self._injectorDetails.doneElmId
-            )
-        ])
+        self._funcsScript = open(self._injectorDetails.funcsFile).read()
+        self._mainScript = open(self._injectorDetails.mainFile).read().format(
+            self._injectorDetails.fromElmId, self._injectorDetails.toElmId,
+            self._injectorDetails.doneLink, self._injectorDetails.doneElmId)
 
     def start(self):
         self.browser = webdriver.Chrome()
@@ -100,7 +99,7 @@ class Downloader(object):
         start, end = 0, len(self.links)
 
         self.browser.execute_script(
-            self._prompt_script.format(start, end))
+            '\n'.join(self._funcsScript.format(start, end), self._mainScript))
 
         Wait(self.browser, self.timeout).until(
             EC.url_contains(self._doneLink)
@@ -124,7 +123,7 @@ class Downloader(object):
                 .find_element_by_css_selector(self._selectors.video_button) \
                 .get_attribute("href")
             self.browser.back()
-            os.system("msdl.exe -s2 {} -o {}".format(rtsp_link, filename))
+            os.system("msdl -s2 {} -o {}".format(rtsp_link, filename))
 
 
 def main():

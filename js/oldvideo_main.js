@@ -1,16 +1,4 @@
 
-fill = function (s) {
-    {
-        for (i = {}; i < {}; i++) {
-            {
-                s.append("<option value=\"" + i + "\">" + (i + 1) + "</option>");
-            }
-        }
-    }
-};
-
-// - split code -
-
 var div = $("<div dir=\"rtl\" style=\"color: red; font-size: 24px\">נא לבחור הרצאות. מ:</div>");
 var select1 = $("<select id=\"{}\"></select>");
 fill(select1);
