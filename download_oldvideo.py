@@ -106,10 +106,10 @@ class Downloader(object):
         )
 
         start = min(end, max(start,
-                             int(self._find_id(self._selectFromId).get_attribute("value"))
+                             int(self._find_id(self._injectorDetails.fromElmId).get_attribute("value"))
                              ))
         end = min(end, max(start,
-                           int(self._find_id(self._selectToId).get_attribute("value")) + 1
+                           int(self._find_id(self._injectorDetails.toElmId).get_attribute("value")) + 1
                            ))
         return start, end
 
