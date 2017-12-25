@@ -1,19 +1,19 @@
+# -*- coding: utf-8 -*-
+
 import getpass
 import os
 from os.path import join as joinPath
 import traceback
 from collections import namedtuple
 
-def ImportSelenium():
-    try:
-        from selenium import webdriver
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support import expected_conditions as EC
-        from selenium.webdriver.support.ui import WebDriverWait as Wait
-    except ImportError:
-        pass
 
-ImportSelenium()
+try:
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.support.ui import WebDriverWait as Wait
+except ImportError:
+    pass
 
 Selectors = namedtuple("Selectors", ["links", "video_button"])
 InputsIds = namedtuple("InputsIds", ["name", "password", "server", "submit"])
@@ -46,8 +46,8 @@ class Downloader(object):
     # --------------------------------------------------
 
     def __init__(self):
-        self._funcsScript = open(self._injectorDetails.funcsFile).read()
-        self._mainScript = open(self._injectorDetails.mainFile).read().format(
+        self._funcsScript = open(self._injectorDetails.funcsFile, encoding='utf-8').read()
+        self._mainScript = open(self._injectorDetails.mainFile, encoding='utf-8').read().format(
             self._injectorDetails.fromElmId, self._injectorDetails.toElmId,
             self._injectorDetails.doneLink, self._injectorDetails.doneElmId)
 
@@ -78,7 +78,7 @@ class Downloader(object):
         if username: usr_input.send_keys(username)
         if password: pass_input.send_keys(password)
         if username and password:
-            self._find_id(self._submitId).click()
+            self._find_id(self._inputsIds.submit).click()
 
         self._wait_for_video_page()
 
@@ -99,10 +99,10 @@ class Downloader(object):
         start, end = 0, len(self.links)
 
         self.browser.execute_script(
-            '\n'.join(self._funcsScript.format(start, end), self._mainScript))
+            '\n'.join([self._funcsScript.format(start, end), self._mainScript]))
 
         Wait(self.browser, self.timeout).until(
-            EC.url_contains(self._doneLink)
+            EC.url_contains(self._injectorDetails.doneLink)
         )
 
         start = min(end, max(start,
