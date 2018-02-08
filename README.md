@@ -3,7 +3,7 @@ Download videos from Technion Panopto like a boss
 
 You can find an executable version at [Video.Technion/releases](https://github.com/urielha/Video.Technion/releases).
 
-Use https://github.com/Krumpet/OVSDownloader to download from the **old** server.
+Use https://github.com/Krumpet/OVSDownloader-GUI to download from the **old** server.
 
 # Usage
 
