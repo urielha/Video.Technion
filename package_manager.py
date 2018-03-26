@@ -20,6 +20,7 @@ def install_pip():
     from sys import executable as PythonExec
     system("{} {}".format(PythonExec, getpip_py.name))
     remove("get-pip.py")
+    print("-" * 40)
     print("")
 
 
@@ -35,4 +36,5 @@ def install_req():
             exit()
 
     pip.main(['install', '-r', 'requirements.txt'])
+    print("-" * 40)
     print("")
