@@ -6,21 +6,19 @@ from os.path import join as joinPath
 import traceback
 from collections import namedtuple
 
-
-try:
-    from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver.support.ui import WebDriverWait as Wait
-except ImportError:
-    pass
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait as Wait
 
 Selectors = namedtuple("Selectors", ["links", "video_button"])
-InputsIds = namedtuple("InputsIds", ["name", "password", "server", "submit"])
+InputsIds = namedtuple("InputsIds", ["name", "password", "submit"])
 InjectorDetails = namedtuple(
     "InjectorDetails",
     ["funcsFile", "mainFile", "fromElmId", "toElmId", "doneElmId", "doneLink"])
 
+def clamp_value(fromV, toV, value):
+    return min(toV, max(fromV, value))
 
 class Downloader(object):
 
@@ -32,7 +30,7 @@ class Downloader(object):
         links="table td a.iframe:not(.vidlink)",
         video_button="a.closebox[title='Play Video']")
     _inputsIds = InputsIds(
-        name="LogiN", password="PasswD", server="ServeR", submit="idenT_conT")
+        name="EmaiL", password="PasswD", submit="idenT_conT")
     _injectorDetails = InjectorDetails(
         funcsFile=joinPath("js", "oldvideo_funcs.js"),
         mainFile=joinPath("js", "oldvideo_main.js"),
@@ -41,15 +39,18 @@ class Downloader(object):
         doneElmId="_done_button",
         doneLink="#done")
 
-    timeout = 100
+    timeout = 180
 
     # --------------------------------------------------
 
     def __init__(self):
-        self._funcsScript = open(self._injectorDetails.funcsFile, encoding='utf-8').read()
-        self._mainScript = open(self._injectorDetails.mainFile, encoding='utf-8').read().format(
-            self._injectorDetails.fromElmId, self._injectorDetails.toElmId,
-            self._injectorDetails.doneLink, self._injectorDetails.doneElmId)
+        self._funcsScript = open(
+            self._injectorDetails.funcsFile, encoding='utf-8').read()
+        self._mainScript = open(
+            self._injectorDetails.mainFile, encoding='utf-8').read().format(
+                self._injectorDetails.fromElmId, self._injectorDetails.toElmId,
+                self._injectorDetails.doneLink,
+                self._injectorDetails.doneElmId)
 
     def start(self):
         self.browser = webdriver.Chrome()
@@ -69,13 +70,17 @@ class Downloader(object):
         return self.browser.find_element_by_id(self._inputsIds.name), \
                self.browser.find_element_by_id(self._inputsIds.password)
 
+    def _select_server(self):
+        pass
+        # self.browser \
+        #     .find_element_by_id(self._inputsIds.server) \
+        #     .find_elements_by_tag_name(self._optionTagName)[-1].click()
+
     def login(self, username='', password=''):
-        self.browser \
-            .find_element_by_id(self._inputsIds.server) \
-            .find_elements_by_tag_name(self._optionTagName)[-1].click()
+        self._select_server()
 
         usr_input, pass_input = self._get_input_fields()
-        if username: usr_input.send_keys(username)
+        if username: usr_input.send_keys(username + "@campus.technion.ac.il")
         if password: pass_input.send_keys(password)
         if username and password:
             self._find_id(self._inputsIds.submit).click()
@@ -86,31 +91,33 @@ class Downloader(object):
 
     def _wait_for_video_page(self):
         Wait(self.browser, self.timeout).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "videolist"))
-        )
+            EC.presence_of_element_located((By.CLASS_NAME, "videolist")))
         return self
 
     def load_links(self):
-        links = self.browser.find_elements_by_css_selector(self._selectors.links)
+        links = self.browser.find_elements_by_css_selector(
+            self._selectors.links)
         self.links = list(map(lambda l: l.get_attribute("href"), links))
         return self
 
     def _prompt_download(self):
         start, end = 0, len(self.links)
 
-        self.browser.execute_script(
-            '\n'.join([self._funcsScript.format(start, end), self._mainScript]))
+        self.browser.execute_script('\n'.join(
+            [self._funcsScript.format(start, end), self._mainScript]))
 
         Wait(self.browser, self.timeout).until(
-            EC.url_contains(self._injectorDetails.doneLink)
-        )
+            EC.url_contains(self._injectorDetails.doneLink))
 
-        start = min(end, max(start,
-                             int(self._find_id(self._injectorDetails.fromElmId).get_attribute("value"))
-                             ))
-        end = min(end, max(start,
-                           int(self._find_id(self._injectorDetails.toElmId).get_attribute("value")) + 1
-                           ))
+        start = clamp_value(start, end,
+                            int(
+                                self._find_id(self._injectorDetails.fromElmId)
+                                .get_attribute("value")))
+        end = clamp_value(
+            start, end,
+            int(
+                self._find_id(
+                    self._injectorDetails.toElmId).get_attribute("value")) + 1)
         return start, end
 
     def download(self):
