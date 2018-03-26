@@ -6,23 +6,14 @@ from os.path import join as joinPath
 import traceback
 from collections import namedtuple
 
-def importSeleniumModules():
-    global webdriver, By, EC, Wait
-    try:
-        from selenium import webdriver
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support import expected_conditions as EC
-        from selenium.webdriver.support.ui import WebDriverWait as Wait
-    except ImportError:
-        return False
-    return True
+import package_manager
+package_manager.install_pip()
+package_manager.install_req()
 
-if not importSeleniumModules():
-    import package_manager
-    package_manager.install_selenium()
-    if not importSeleniumModules():
-        print("Error getting required modules")
-        exit()
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait as Wait
 
 Selectors = namedtuple("Selectors", ["links", "video_button"])
 InputsIds = namedtuple("InputsIds", ["name", "password", "server", "submit"])
