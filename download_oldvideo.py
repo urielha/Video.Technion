@@ -17,11 +17,12 @@ InjectorDetails = namedtuple(
     "InjectorDetails",
     ["funcsFile", "mainFile", "fromElmId", "toElmId", "doneElmId", "doneLink"])
 
+
 def clamp_value(fromV, toV, value):
     return min(toV, max(fromV, value))
 
-class Downloader(object):
 
+class Downloader(object):
     # ------------- configurations --------------------
 
     _optionTagName = "option"
@@ -48,9 +49,9 @@ class Downloader(object):
             self._injectorDetails.funcsFile, encoding='utf-8').read()
         self._mainScript = open(
             self._injectorDetails.mainFile, encoding='utf-8').read().format(
-                self._injectorDetails.fromElmId, self._injectorDetails.toElmId,
-                self._injectorDetails.doneLink,
-                self._injectorDetails.doneElmId)
+            self._injectorDetails.fromElmId, self._injectorDetails.toElmId,
+            self._injectorDetails.doneLink,
+            self._injectorDetails.doneElmId)
 
     def start(self):
         self.browser = webdriver.Chrome()
@@ -112,7 +113,7 @@ class Downloader(object):
         start = clamp_value(start, end,
                             int(
                                 self._find_id(self._injectorDetails.fromElmId)
-                                .get_attribute("value")))
+                                    .get_attribute("value")))
         end = clamp_value(
             start, end,
             int(
@@ -133,8 +134,8 @@ class Downloader(object):
             os.system("msdl -s2 {} -o {}".format(rtsp_link, filename))
 
 
-def main():
-    url = input("Please enter the url of the lecture: ")
+def main(url):
+    if not url: url = input("Please enter the url of the lecture: ")
     username = input("username: ")
     password = getpass.getpass()
 
@@ -161,4 +162,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    from sys import argv
+    main(argv[1] if len(argv) > 1 else '')
