@@ -35,4 +35,5 @@ usage: download_panopto.py courseUrl \[-h\] \[-p PREFIX\] \[-s NUM\] \[-e NUM\] 
 | -e, --endIndex *num* | index of the last video |
 | -o, --output *output_dir* | output directory |
 | -p, --prefix *prefix* | prefix of the filename |
+| --newFilename *filename* | override whole file name |
 
