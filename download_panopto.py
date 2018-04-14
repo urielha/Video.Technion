@@ -57,6 +57,8 @@ def getDownloadProgress(startTime, total):
 
 
 def download(url, toFile):
+    toFile = re.sub(r'(?u)[^-\w.]', '_', toFile.strip()) # remove invalid characters
+
     print(u"downloading file: {}\n\t-> to: {}".format(url, toFile))
 
     chunkSize = 1024 * 4  # Bytes
@@ -66,6 +68,7 @@ def download(url, toFile):
 
     totalFileSize, downloaded = response.length, 0.0
     getProgressStr = getDownloadProgress(time(), totalFileSize)
+
     f = open(toFile, 'wb')
     lastPrint = 0
     while True:
@@ -149,8 +152,9 @@ def main(arguments):
     prefix = arguments.prefix if arguments.prefix else input("Add prefix to the files? (press Enter for none) ") or ""
 
     # Start downloading!
-    for f in files[startIndex - 1: stopIndex]:
-        dest = os.path.join(outputDir, u"{}{}.mp4".format(prefix, f[0]))
+    for i, f in enumerate(files[startIndex - 1: stopIndex]):
+        filename = f[0] if not arguments.newFilename else arguments.newFilename + str(i + startIndex)
+        dest = os.path.join(outputDir, u"{}{}.mp4".format(prefix, filename))
         download(f[1], dest)
 
 
@@ -171,6 +175,9 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output',
                         required=False, dest='outputDir', metavar='OUTPUT_DIR', default='',
                         help='output directory')
+    parser.add_argument('--newFilename',
+                        required=False, dest='newFilename', metavar='NEW_FILENAME', default='',
+                        help='override whole file name')
     arguments = parser.parse_args()
 
     try:
