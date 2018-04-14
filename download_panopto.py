@@ -57,7 +57,7 @@ def getDownloadProgress(startTime, total):
 
 
 def download(url, toFile):
-    toFile = re.sub(r'(?u)[^-\w.]', '_', toFile.strip()) # remove invalid characters
+    toFile = re.sub(r'(?u)[^ \-\w.]', '_', toFile.strip()) # remove invalid characters
 
     print(u"downloading file: {}\n\t-> to: {}".format(url, toFile))
 
@@ -158,7 +158,7 @@ def main(arguments):
         download(f[1], dest)
 
 
-WELCOME = u"Welcome to Panopto downloader!\n[Home page: https://github.com/urielha/Video.Technion]\nVersion: 2.2.0"
+WELCOME = u"Welcome to Panopto downloader!\n[Home page: https://github.com/urielha/Video.Technion]\nVersion: 2.2.1"
 EPILOG = u"Written by Uriel"
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=WELCOME, epilog=EPILOG)
