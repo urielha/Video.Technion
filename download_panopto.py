@@ -4,6 +4,7 @@
 
 from urllib.request import urlopen
 from time import time
+from collections import deque
 import re
 import os
 import sys
@@ -36,29 +37,63 @@ sys.stdout = stdoutWrapper('cp1255', 'strict')
 # print(sys.stdout.encoding)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def getDownloadProgress(startTime, total):
+class DownloadProgress:
     PROGRESS_STR = u"Downloaded: {:7.2f}MB, Total: {:7.2f}MB [{:3.0f}%], Speed: {:7.2f}KB/s [ETA: {:02d}:{:02d}] "
     MAX_REMAIN_SEC = 99 * 60 + 59
-    totalMB = total / 1024 / 1024
+    def __init__(self, startTime, total):
+        self.total = total
+        self.totalMB = total / 1024 / 1024
+        self.startTime = startTime
 
-    def getProgress_aux(current):
-        current = max(1, current)
-        duration = time() - startTime
-        duration = max(1, duration)
+    def _progress(self, current):
+        self.current = max(1, current)
+        self.duration = time() - self.startTime
+        self.duration = max(1, self.duration)
 
-        downloadedMB = current / 1024 / 1024
-        progress = 100 * current / total
-        speed = current / 1024 / duration
-        remainSecs = max(0, min(MAX_REMAIN_SEC, duration * (total / current - 1)))
-        STR = PROGRESS_STR.format(downloadedMB, totalMB, progress, speed, int(remainSecs / 60), int(remainSecs % 60))
+        downloadedMB = self.current / 1024 / 1024
+        progress = 100 * self.current / self.total
+
+        return downloadedMB, progress
+
+    def _speed(self):
+        return self.current / 1024 / self.duration
+
+    def _remainSecs(self, speed):
+        return max(0,
+                   min(self.MAX_REMAIN_SEC,
+                        (self.total - self.current) / 1024 / speed))
+                    #    self.duration * ((self.total / self.current) - 1)))
+
+    def progress(self, current):
+        downloadedMB, progress = self._progress(current)
+        speed = self._speed()
+        remainSecs = self._remainSecs(speed)
+        STR = self.PROGRESS_STR.format(downloadedMB, self.totalMB, progress,
+                                       speed, int(remainSecs / 60),
+                                       int(remainSecs % 60))
         return STR
 
-    return getProgress_aux
+
+class DownloadProgress2(DownloadProgress):
+    WIND_SIZE = 20
+    def __init__(self, startTime, total):
+        super().__init__(startTime, total)
+        self.current_wind = deque([0])
+        self.duration_wind = deque([0])
+
+    def _speed(self):
+        self.current_wind.append(self.current)
+        self.duration_wind.append(self.duration)
+        if len(self.current_wind) > self.WIND_SIZE:
+            self.current_wind.popleft()
+            self.duration_wind.popleft()
+        current = self.current_wind[-1] - self.current_wind[0]
+        duration = self.duration_wind[-1] - self.duration_wind[0]
+        return current / 1024 / duration
+
 
 
 def download(url, toFile):
-    toFile = re.sub(r'(?u)[^ \-\w.]', '_', toFile.strip()) # remove invalid characters
-
     print(u"downloading file: {}\n\t-> to: {}".format(url, toFile))
 
     chunkSize = 1024 * 4  # Bytes
@@ -67,13 +102,13 @@ def download(url, toFile):
     response = urlopen(url, context=gcontext)
 
     totalFileSize, downloaded = response.length, 0.0
-    getProgressStr = getDownloadProgress(time(), totalFileSize)
+    getProgress = DownloadProgress(time(), totalFileSize).progress
 
     f = open(toFile, 'wb')
     lastPrint = 0
     while True:
         if time() - lastPrint > printFrequency:
-            print('\r\t' + getProgressStr(downloaded), end='')
+            print('\r\t' + getProgress(downloaded), end='')
             lastPrint = time()
 
         buff = response.read(chunkSize)
@@ -81,7 +116,7 @@ def download(url, toFile):
             break
         f.write(buff)
         downloaded += len(buff)
-    print('\r\t' + getProgressStr(downloaded))
+    print('\r\t' + getProgress(downloaded))
     print(u"finish\n")
     f.close()
     response.close()
@@ -154,7 +189,9 @@ def main(arguments):
     # Start downloading!
     for i, f in enumerate(files[startIndex - 1: stopIndex]):
         filename = f[0] if not arguments.newFilename else arguments.newFilename + str(i + startIndex)
-        dest = os.path.join(outputDir, u"{}{}.mp4".format(prefix, filename))
+        toFile = u"{}{}.mp4".format(prefix, filename)
+        toFile = re.sub(r'(?u)[^ \-\w.]', '_', toFile.strip()) # remove invalid characters
+        dest = os.path.join(outputDir, toFile)
         download(f[1], dest)
 
 
