@@ -195,7 +195,7 @@ def main(arguments):
         download(f[1], dest)
 
 
-WELCOME = u"Welcome to Panopto downloader!\n[Home page: https://github.com/urielha/Video.Technion]\nVersion: 2.2.1"
+WELCOME = u"Welcome to Panopto downloader!\n[Home page: https://github.com/urielha/Video.Technion]\nVersion: 2.2.2"
 EPILOG = u"Written by Uriel"
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=WELCOME, epilog=EPILOG)
